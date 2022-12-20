@@ -39,7 +39,9 @@ RUN conda install mamba -n base -c conda-forge -y && \
 	mamba install -y opencv -c conda-forge && \
 	conda clean -ya
 
-RUN apt-get update && apt-get install llvm-8 -y && \
+RUN apt-get update && apt-get install -y llvm-8 \
+	cmake \
+	libgl1 && \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*
 

@@ -85,12 +85,12 @@ def torch2executor(torch_module: torch.nn.Module, torch_inputs: Tuple[torch.Tens
 
 def get_executor(use_gpu=True):
     torch_module = MobileNetV2(n_class=27)
-    if not os.path.exists("mobilenetv2_jester_online.pth.tar"):  # checkpoint not downloaded
+    if not os.path.exists("/mobilenetv2_jester_online.pth.tar"):  # checkpoint not downloaded
         print('Downloading PyTorch checkpoint...')
         import urllib.request
         url = 'https://hanlab.mit.edu/projects/tsm/models/mobilenetv2_jester_online.pth.tar'
-        urllib.request.urlretrieve(url, './mobilenetv2_jester_online.pth.tar')
-    torch_module.load_state_dict(torch.load("mobilenetv2_jester_online.pth.tar"))
+        urllib.request.urlretrieve(url, '/mobilenetv2_jester_online.pth.tar')
+    torch_module.load_state_dict(torch.load("/mobilenetv2_jester_online.pth.tar"))
     torch_inputs = (torch.rand(1, 3, 224, 224),
                     torch.zeros([1, 3, 56, 56]),
                     torch.zeros([1, 4, 28, 28]),
@@ -297,7 +297,8 @@ def main():
             print('Timeout while waiting for nvim to start')
             return
 
-    print("nvim attached")
+        print("nvim attached")
+        nvim.vars['quit_nvim_hand_gesture'] = 0
 
     print("Open camera...")
     cap = cv2.VideoCapture(0)
@@ -380,11 +381,12 @@ def main():
             print(f"{index} {categories[idx]}")
 
             if nvim is not None:
-                if idx != history[-1]:
-                    lua_file = 'gesture_mappings/{categories[idx]}.lua'.lower().replace(' ', '_')
+                if idx != history[-2]:
+                    lua_file = f'gesture_mappings/{categories[idx]}.lua'.lower().replace(' ', '_')
                     if os.path.isfile(lua_file):
                         with open(lua_file, 'r') as f:
                             lua_code = f.read()
+                            print(lua_code)
                             nvim.exec_lua(lua_code)
 
             current_time = t2 - t1
