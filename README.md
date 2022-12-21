@@ -2,6 +2,8 @@
 
 Use your webcam to unlock hand gesture recognition to control Neovim!
 
+<img src="https://user-images.githubusercontent.com/12980409/209009889-94513f97-2cdd-4fd7-9d0f-5874b944b8e8.gif" width="100%"/>
+
 Highly experimental. Is it practical? Maybe not, but some use cases are not bad. Should you try it? Why not, it's fun!
 
 This is a porting of [TSM demo](https://github.com/mit-han-lab/temporal-shift-module/tree/master/online_demo) in order to use it to control Neovim.
@@ -9,6 +11,7 @@ This is a porting of [TSM demo](https://github.com/mit-han-lab/temporal-shift-mo
 The demo uses [GitHub Copilot](https://github.com/github/copilot.vim) (AI code suggestion), [Nvim-Tree](https://github.com/nvim-tree/nvim-tree.lua) (file explorer), and [nvim-treesitter-textobjects](https://github.com/nvim-treesitter/nvim-treesitter-textobjects) (peep function definition).
 
 ## Prerequisites
+
 
 You need an Nvidia GPU on a Linux computer. I tested with Ubuntu 22.04, GTX 1080 Ti and RTX 3060. The Nvidia driver has to support CUDA 11.3 (see `nvidia-smi` command).  
 I'm sorry, no Windows or Mac support as of yet.
