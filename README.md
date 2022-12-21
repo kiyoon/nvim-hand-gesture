@@ -12,9 +12,27 @@ You need an Nvidia GPU on a Linux computer. I tested with Ubuntu 22.04, GTX 1080
 I'm sorry, no Windows or Mac support as of yet.
 
 ## Installation
-You need to install Nvidia-docker. Follow their official guide.  
+This plugin depends on number of softwares so there's no easy way to install using plugin managers.  
+The easiest way to get started is using Docker.
 
-1. Pull the repo and the docker container.  
+You need to install [Nvidia-docker](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html). From their official guide,  
+
+```bash
+curl https://get.docker.com | sh \
+  && sudo systemctl --now enable docker
+
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+      && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+      && curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
+            sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+            sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+
+sudo apt-get update
+sudo apt-get install -y nvidia-docker2
+sudo systemctl restart docker
+```
+
+### Pull the repo and the docker container.  
 Warning: this will download around 7GB. This program has many dependencies that makes it huge.
 
 ```bash
@@ -22,7 +40,7 @@ git clone https://github.com/kiyoon/nvim-hand-gesture
 docker pull kiyoon/nvim-hand-gesture
 ```
 
-2. Before testing with Neovim, see if the program works.
+### Before testing with Neovim, see if the program works.
 
 
 ```bash
@@ -43,7 +61,7 @@ docker run --gpus all --rm -it \
     -v "$REPO_PATH":/workspace kiyoon/nvim-hand-gesture --gui
 ```
 
-Once you saw it working, make vim bindings.
+### Once you saw it working, make vim bindings.
 
 ```vim
 " With GUI demo
