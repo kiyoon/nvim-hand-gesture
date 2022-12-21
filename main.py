@@ -21,7 +21,8 @@ import tvm.relay
 def get_parser():
     parser = argparse.ArgumentParser(description="Control Neovim using hand gestures",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--socket_path", help="")
+    parser.add_argument("--nvim_socket_path", help="Use --listen on nvim to specify nvim's socket path, and pass the same to here.")
+    parser.add_argument("--headless", action='store_true', help="Do not open window for visualisation.")
     return parser
 
 SOFTMAX_THRES = 0
@@ -283,12 +284,15 @@ def main():
     parser = get_parser()
     args = parser.parse_args()
 
+    with open('persistent_gestures.txt', 'r') as f:
+        persistent_gestures = f.read().splitlines()
+
     nvim = None
-    if args.socket_path is not None:
-        print("Neovim socket path: %s", args.socket_path)
+    if args.nvim_socket_path is not None:
+        print("Neovim socket path: %s", args.nvim_socket_path)
         for _ in range(1000):
             try:
-                nvim = pynvim.attach('socket', path=args.socket_path)
+                nvim = pynvim.attach('socket', path=args.nvim_socket_path)
             except Exception as e:
                 time.sleep(0.1)
             else:
@@ -309,12 +313,14 @@ def main():
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
 
-    # env variables
-    full_screen = False
-    cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
-    cv2.resizeWindow(WINDOW_NAME, 640, 480)
-    cv2.moveWindow(WINDOW_NAME, 0, 0)
-    cv2.setWindowTitle(WINDOW_NAME, WINDOW_NAME)
+
+    if not args.headless:
+        # env variables
+        full_screen = False
+        cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
+        cv2.resizeWindow(WINDOW_NAME, 640, 480)
+        cv2.moveWindow(WINDOW_NAME, 0, 0)
+        cv2.setWindowTitle(WINDOW_NAME, WINDOW_NAME)
 
 
     t = None
@@ -381,46 +387,59 @@ def main():
             print(f"{index} {categories[idx]}")
 
             if nvim is not None:
-                if idx != history[-2]:
-                    lua_file = f'gesture_mappings/{categories[idx]}.lua'.lower().replace(' ', '_')
-                    if os.path.isfile(lua_file):
+                category_lower = categories[idx].lower().replace(' ', '_')
+                lua_file = f'gesture_mappings/{category_lower}.lua'
+                if os.path.isfile(lua_file):
+                    if category_lower in persistent_gestures:
+                        # Execute multiple times until the gesture is no longer detected
+                        nvim.vars['hand_gesture_persistent_frame'] += 1
                         with open(lua_file, 'r') as f:
                             lua_code = f.read()
-                            print(lua_code)
                             nvim.exec_lua(lua_code)
+                    else:
+                        # Execute only once
+                        if idx != history[-2]:
+                            nvim.vars['hand_gesture_persistent_frame'] = 0
+
+                            with open(lua_file, 'r') as f:
+                                lua_code = f.read()
+                                nvim.exec_lua(lua_code)
 
             current_time = t2 - t1
 
-        img = cv2.resize(img, (640, 480))
-        img = img[:, ::-1]
-        height, width, _ = img.shape
-        label = np.zeros([height // 10, width, 3]).astype('uint8') + 255
+        if not args.headless:
+            img = cv2.resize(img, (640, 480))
+            img = img[:, ::-1]
+            height, width, _ = img.shape
+            label = np.zeros([height // 10, width, 3]).astype('uint8') + 255
 
-        cv2.putText(label, 'Prediction: ' + categories[idx],
-                    (0, int(height / 16)),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.7, (0, 0, 0), 2)
-        cv2.putText(label, '{:.1f} Vid/s'.format(1 / current_time),
-                    (width - 170, int(height / 16)),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.7, (0, 0, 0), 2)
+            cv2.putText(label, 'Prediction: ' + categories[idx],
+                        (0, int(height / 16)),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.7, (0, 0, 0), 2)
+            cv2.putText(label, '{:.1f} Vid/s'.format(1 / current_time),
+                        (width - 170, int(height / 16)),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.7, (0, 0, 0), 2)
 
-        img = np.concatenate((img, label), axis=0)
-        cv2.imshow(WINDOW_NAME, img)
+            img = np.concatenate((img, label), axis=0)
+            cv2.imshow(WINDOW_NAME, img)
 
-        key = cv2.waitKey(1)
-        if key & 0xFF == ord('q') or key == 27:  # exit
-            break
-        elif key == ord('F') or key == ord('f'):  # full screen
-            print('Changing full screen option!')
-            full_screen = not full_screen
-            if full_screen:
-                print('Setting FS!!!')
-                cv2.setWindowProperty(WINDOW_NAME, cv2.WND_PROP_FULLSCREEN,
-                                      cv2.WINDOW_FULLSCREEN)
-            else:
-                cv2.setWindowProperty(WINDOW_NAME, cv2.WND_PROP_FULLSCREEN,
-                                      cv2.WINDOW_NORMAL)
+            key = cv2.waitKey(1)
+            if key & 0xFF == ord('q') or key == 27:  # exit
+                break
+            elif key == ord('F') or key == ord('f'):  # full screen
+                print('Changing full screen option!')
+                full_screen = not full_screen
+                if full_screen:
+                    print('Setting FS!!!')
+                    cv2.setWindowProperty(WINDOW_NAME, cv2.WND_PROP_FULLSCREEN,
+                                          cv2.WINDOW_FULLSCREEN)
+                else:
+                    cv2.setWindowProperty(WINDOW_NAME, cv2.WND_PROP_FULLSCREEN,
+                                          cv2.WINDOW_NORMAL)
+        else:
+            key = cv2.waitKey(1)
 
         if nvim is not None and nvim.vars['quit_nvim_hand_gesture'] == 1:
             break
@@ -433,7 +452,9 @@ def main():
             t = nt
 
     cap.release()
-    cv2.destroyAllWindows()
+
+    if not args.headless:
+        cv2.destroyAllWindows()
 
 
 main()
