@@ -1,4 +1,4 @@
-# Hand Gesture Experiment for Neovim
+# Hand Gesture for Neovim
 
 Use your webcam to unlock hand gesture recognition to control Neovim!
 
@@ -6,7 +6,9 @@ Highly experimental. Is it practical? Maybe not, but some use cases are not bad.
 
 This is a porting of [TSM demo](https://github.com/mit-han-lab/temporal-shift-module/tree/master/online_demo) in order to use it to control Neovim.
 
-## Prerequisite
+The demo uses [GitHub Copilot](https://github.com/github/copilot.vim) (AI code suggestion), [Nvim-Tree](https://github.com/nvim-tree/nvim-tree.lua) (file explorer), and [nvim-treesitter-textobjects](https://github.com/nvim-treesitter/nvim-treesitter-textobjects) (peep function definition).
+
+## Prerequisites
 
 You need an Nvidia GPU on a Linux computer. I tested with Ubuntu 22.04, GTX 1080 Ti and RTX 3060. The Nvidia driver has to support CUDA 11.3 (see `nvidia-smi` command).  
 I'm sorry, no Windows or Mac support as of yet.
@@ -78,3 +80,11 @@ Note that you need to remove `-it` option, and may change the webcam device and 
 ## Customisation
 
 Change lua files in [gesture_mappings](./gesture_mappings) to your likings. If the action is in [persistent_gestures.txt](./persistent_gestures.txt), the lua script will keep being executed until you stop that action. If not, it will only be executed once and be ignored for the rest of the duration.
+
+### Setup tips
+
+You may not want to make a gesture command intrusive to your original neovim workflow. To make it as practical as possible, try to avoid moving your cursor and amending text.
+
+Instead, some example use cases include:  
+- Opening / closing a side bar (e.g. nvim-tree) without focussing on it
+- Open a floating window (e.g. peek function definition).
