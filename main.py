@@ -302,6 +302,7 @@ def main():
             return
 
         print("nvim attached")
+        nvim.vars['hand_gesture_persistent_frame'] = 0
         nvim.vars['quit_nvim_hand_gesture'] = 0
 
     print("Open camera...")

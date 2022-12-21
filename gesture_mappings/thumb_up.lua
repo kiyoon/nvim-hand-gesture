@@ -15,6 +15,7 @@ if mode == 'n' then
 elseif mode == 'i' then
   -- execute only once although it's in persistent mode
   if vim.g.hand_gesture_persistent_frame == 1 then
-    vim.cmd[[call copilot#Dismiss()]]
+    -- copilot#Accept() doesn't work..
+    vim.api.nvim_input('<Tab>')
   end
 end
