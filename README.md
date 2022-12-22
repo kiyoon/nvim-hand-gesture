@@ -17,7 +17,7 @@ You need an Nvidia GPU on a Linux computer. I tested with Ubuntu 22.04, GTX 1080
 I'm sorry, no Windows or Mac support as of yet.
 
 ## Installation
-This plugin depends on number of softwares so there's no easy way to install using plugin managers.  
+This plugin depends on a number of softwares so there's no easy way to install using plugin managers.  
 The easiest way to get started is using Docker.
 
 You need to install [Nvidia-docker](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html). From their official guide,  
@@ -86,8 +86,11 @@ Change lua files in [gesture_mappings](./gesture_mappings) to your likings. If t
 
 ### Setup tips
 
-You may not want to make a gesture command intrusive to your original neovim workflow. To make it as practical as possible, try to avoid moving your cursor and amending text.
+You may not want to make a gesture command intrusive to your original neovim workflow. To make it as practical as possible, try to avoid moving your cursor or amending text.
 
 Instead, some example use cases include:  
 - Opening / closing a side bar (e.g. nvim-tree) without focussing on it
-- Open a floating window (e.g. peek function definition).
+- Opening a floating window (e.g. peek function definition).
+- Adjusting size of splits
+
+I'd be happy if anyone shares their own use cases and good sets of defaults!
