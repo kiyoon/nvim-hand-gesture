@@ -6,8 +6,7 @@ Use your webcam to unlock hand gesture recognition to control Neovim!
 
 Highly experimental. Is it practical? Maybe not, but some use cases are not bad. Should you try it? Why not, it's fun!
 
-This is a porting of [TSM demo](https://github.com/mit-han-lab/temporal-shift-module/tree/master/online_demo) in order to use it to control Neovim.
-
+Highly customisable. Just change the lua scripts to your own custom commands!  
 The demo uses [GitHub Copilot](https://github.com/github/copilot.vim) (AI code suggestion), [Nvim-Tree](https://github.com/nvim-tree/nvim-tree.lua) (file explorer), and [nvim-treesitter-textobjects](https://github.com/nvim-treesitter/nvim-treesitter-textobjects) (peep function definition).
 
 ## Prerequisites
@@ -51,7 +50,7 @@ docker pull kiyoon/nvim-hand-gesture
 ```bash
 # You may need to change the variables
 WEBCAM=/dev/video0
-REPO_PATH=/home/kiyoon/nvim-hand-gesture
+REPO_PATH=~/nvim-hand-gesture
 docker run --gpus all --rm -it \
     --device=$WEBCAM:/dev/video0 \
     -v "$REPO_PATH":/workspace kiyoon/nvim-hand-gesture
@@ -94,3 +93,8 @@ Instead, some example use cases include:
 - Adjusting size of splits
 
 I'd be happy if anyone shares their own use cases and good sets of defaults!
+
+
+## Acknowledgement
+
+This is a porting of [TSM demo](https://github.com/mit-han-lab/temporal-shift-module/tree/master/online_demo) in order to use it to control Neovim.
